@@ -1,0 +1,13 @@
+
+
+Assembler:
+
+symbol table
+--> which data  structure? double arrays, linked list?
+--> holds labels, variable names
+
+requirements:
+-error detection and error messages (difficult)
+- reporting progress (easy)
+- creating more assembly language programs (doable)
+
