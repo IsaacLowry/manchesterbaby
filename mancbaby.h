@@ -3,16 +3,22 @@
 
 using namespace std;
 
-int memLines = 32;
-int counter = 0;
 
-vector<string> store(memLines, 0);
-vector<string> memLocation(memLines, 0);
-vector<string> accumulator(memLines, 0);
+class MancBaby {
+	vector<string> store;
+	string accumulator;
+	int instructAddr;
+	string instruct;
+	string opcode;
+	string operand;
 
+	public:
+		MancBaby();
+		int loadFromFile();
+		string fetch();
+		void decode(string);
+		int execute();
+		void displayStatus();
 
-vector<string> fetchDecode(vector<string> memLocation);
+}
 
-vector<string> execute(vector<string> accumulator );
-
-void printout(vector<string> store, int counter);
