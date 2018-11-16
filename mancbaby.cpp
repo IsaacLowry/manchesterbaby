@@ -22,7 +22,7 @@ class MancBaby {
 	int instructAddr;
 	string instruct;
 	string opcode;
-	string operand;
+	int operand;
 		MancBaby();
 		int loadFromFile();
 		void fetch();
@@ -37,7 +37,7 @@ class MancBaby {
 		void CMP();
 		string decToBin(int);
 		int binToDec(string);
-		string twosCompliment(string);
+		//string twosCompliment(string);
 
 };
 
@@ -46,36 +46,38 @@ MancBaby :: MancBaby() {
 	this -> store = vector<string>(32, "0");
 	this -> instructAddr = 0;
 	this -> accumulator = "";
+	this -> operand = 0;
+	this -> opcode = "";
 }
 
 
 int MancBaby :: loadFromFile() {
 	try {
 		string filePath;
-	cout << "Please enter name of file to load program from: ";
-	cin >> filePath;
-	fstream readFile;
+		cout << "Please enter name of file to load program from: ";
+		cin >> filePath;
+		fstream readFile;
 
-	readFile.open(filePath, ios::in);
-	string currLine;
-	if (readFile.is_open()) {
-		int i = 0;
-		while (getline(readFile, currLine) && i < 32) {
-			this -> store.at(i) = currLine;
-			i++;
-		}
-		readFile.close();
-		return 0;
-	} else {
-		return 1;
-	}	
+		readFile.open(filePath, ios::in);
+		string currLine;
+		if (readFile.is_open()) {
+			int i = 0;
+			while (getline(readFile, currLine) && i < 32) {
+				this -> store.at(i) = currLine;
+				i++;
+			}
+			readFile.close();
+			return 0;
+		} else {
+			cout << "Error reading file. Check file exists." << endl;
+			return 1;
+		}	
 	} catch(...) {
 		cout << "Error reading file" << endl;
 		return 1;
 	}
-	
-
 }
+
 
 void MancBaby :: fetch() {
 	try {
@@ -86,59 +88,68 @@ void MancBaby :: fetch() {
 	}
 }
 
+
 void MancBaby :: decode() {
 	try {
-		int j = 4;
-	(this -> operand).clear();
-	(this -> opcode).clear();
-	for (int i = 0; i < 5; i++) {
-		this -> operand += this -> instruct.at(i);
-		j--;
-	}
-	j = 2;
-	for (int i = 0; i < 3; i++) {
-		this -> opcode += this -> instruct.at(13+i);
-		j--;
-	}	
+		this -> operand = 0;
+		(this -> opcode).clear();
+		int power = 0;
+		for (int i = 0; i < 5; i++, power++) {
+			if (this -> instruct.at(i) == '1') {
+				this -> operand += pow(2, power);
+			}
+		}
+		for (int i = 0; i < 3; i++) {
+			this -> opcode += this -> instruct.at(13+i);
+		}	
 	} catch (...) {
 		cout << "Problem with decode() method. " << endl;
-	}
-	
+	}	
 }
 
 int MancBaby :: execute() {
 	try {
-	if (this -> opcode == "000") {
-		JMP();
-	} else if (this -> opcode == "100") {
-		JRP();
-	} else if (this -> opcode == "010") {
-		LDN();
-	} else if (this -> opcode == "110") {
-		STO();
-	} else if (this -> opcode == "001") {
-		SUB();
-	} else if (this -> opcode == "101") {
-		SUB();
-	} else if (this -> opcode == "011") {
-		CMP();
-	} else if (this -> opcode == "111") {
-		return -1;
-	} else {
-		cout << "Error: Invalid opcode" << endl;
-		return 1;
-	}
+		if (this -> opcode == "000") {
+			cout << opcode << " - JMP" << endl;
+			JMP();
+		} else if (this -> opcode == "100") {
+			cout << opcode << " - JRP" << endl;
+			JRP();
+		} else if (this -> opcode == "010") {
+			cout << opcode << " - LDN" << endl;
+			LDN();
+		} else if (this -> opcode == "110") {
+			cout << opcode << " - STO" << endl;
+			STO();
+		} else if (this -> opcode == "001") {
+			cout << opcode << " - SUB" << endl;
+			SUB();
+		} else if (this -> opcode == "101") {
+			cout << opcode << " - SUB" << endl;
+			SUB();
+		} else if (this -> opcode == "011") {
+			cout << opcode << " - CMP" << endl;
+			CMP();
+		} else if (this -> opcode == "111") {
+			cout << opcode << " - STP" << endl;
+			return -1;
+		} else {
+			cout << "Error: Invalid opcode" << endl;
+			return 1;
+		}
 	} catch (...) {
 		cout<<"Problem with execute() method. " << endl;
+		return 1;
 	}
 	return 0;
-	
 }
 
+
 void MancBaby :: JRP() {	
-	operand = decToBin(this -> instructAddr + binToDec(this -> store.at(binToDec(this -> operand))));
+	this -> operand = (this -> instructAddr + binToDec(this -> store.at(this -> operand)));
 	JMP();
 }
+
 
 void MancBaby :: CMP() {
 	if (binToDec(this -> accumulator) < 0) {
@@ -148,79 +159,75 @@ void MancBaby :: CMP() {
 	}
 }
 
+
 void MancBaby :: LDN() {
-	this -> accumulator = twosCompliment(this -> store.at(binToDec(this -> operand)));
+	string temp = this -> store.at(this -> operand);
+	if (temp.at(31) == '0') {
+		temp.at(31) = '1';
+	} else {
+		temp.at(31) = '0';
+	}
+	this -> accumulator = temp;
 	cout<<"accumulator: " << this->accumulator<<endl;
 }
 
+
 void MancBaby :: JMP() {
-	this -> instructAddr = binToDec(this -> operand);
+	this -> instructAddr = this -> operand;
 }
+
 
 void MancBaby :: STO() {
-	this -> operand = this -> accumulator;
+	this -> store.at(this -> operand) = this -> accumulator;
 }
 
+
 void MancBaby :: SUB() {
-	this -> accumulator = decToBin(binToDec(this -> accumulator) - binToDec(this -> operand));
+	int tempIntAccum = this->binToDec(this->accumulator);
+	int tempIntStore = this->binToDec(this->store.at(this->operand));
+	cout << "SUB result to store: " << (tempIntAccum - tempIntStore);
+	this -> accumulator = this->decToBin(tempIntAccum - tempIntStore);
 }
 
 
 int MancBaby :: binToDec(string binary) {
-	cout << "original binary (big end): " << binary << endl;
-	reverse(binary.begin(), binary.end());
-	cout << "little end binary: " << binary << endl;
     int dec = 0;
     int power = 0;
-    for (int i = 5; i >= 0; i--, power++) {
-        if (binary[i] == '1') {
-            dec = pow(2, power) + dec;
-        }
+    for (int i = 0; i < 31; i++) {
+    	if (binary[i] == '1') {
+    		dec += pow(2, power);
+    	}
+        power++;
     }
-    cout << "decimal: " << dec << endl;
+    if (binary[31] == '1') {
+    	dec = -dec;
+    }
     return dec;
 }
 
-string MancBaby :: decToBin(int decimal) {
+string MancBaby :: decToBin(int origDecimal) {
+	int tempDecimal;
 	string binary;
-	if (decimal < 0) {
-		decimal = -decimal;
-		while (decimal != 0) {
-        	binary = (decimal % 2 == 0 ?"0":"1") + binary;
-        	decimal /= 2;
-    	}	
-    	while (binary.length() < 5) {
-        	binary = "0" + binary;
-    	}
-    	return twosCompliment(binary);
+	if (origDecimal < 0) {
+		tempDecimal = -origDecimal;
 	} else {
-		while (decimal != 0) {
-        	binary = (decimal % 2 == 0 ?"0":"1") + binary;
-        	decimal /= 2;
-    	}	
-    	while (binary.length() < 5) {
-        	binary = "0" + binary;
-    	}
+		tempDecimal = origDecimal;
 	}
-    
-    reverse(binary.begin(), binary.end());
+	while (tempDecimal != 0) {
+       	binary = binary + (tempDecimal % 2 == 0 ?"0":"1");
+       	tempDecimal /= 2;
+    }	
+    while (binary.length() < 31) {
+       	binary = binary + "0";
+    }
+	if (origDecimal < 0) {
+		binary = binary + '1';
+	} else {
+		binary = binary + '0';
+	}
     return binary;
 }
 
-string MancBaby :: twosCompliment(string posBinary) {
-	int tempDec = binToDec(posBinary);
-	string tempBinary = decToBin(tempDec+1);
-	string negBinary;
-	for (int i = 0; i < static_cast<int>(tempBinary.length()); i++) {
-		if (tempBinary[i] == '0') {
-			negBinary[i] = '1';
-		} else {
-			negBinary[i] = '0';
-		}
-	}
-
-	return negBinary;
-}
 
 int main() {
 	MancBaby newMancBaby;
@@ -237,29 +244,29 @@ int main() {
 	cout<< "operand: " << newMancBaby.operand << endl;
 
 
-	sleep_for(seconds(2));
+	//sleep_for(seconds(2));
 
 	int check = 0;
 	while (check < 9){	
+		cout<<"---------------------------------------------" << endl;	
+		cout<< "instruct addr: " << newMancBaby.instructAddr << endl;
 		newMancBaby.fetch();
+		cout<< "instruction: " << newMancBaby.instruct << endl;
 		newMancBaby.decode();
-	cout<<"---------------------------------------------" << endl;	
-	cout<< "instruct addr: " << newMancBaby.instructAddr << endl;
-	cout<< "instruction: " << newMancBaby.instruct << endl;
-	cout<< "opcode: " << newMancBaby.opcode << endl;
-	cout<<"operand: " << newMancBaby.operand << endl;
-	cout<<"accumulator: " << newMancBaby.accumulator << endl;
-	
+		cout<<"operand: " << newMancBaby.operand << endl;
+		cout << "opcode: " << newMancBaby.opcode << endl;
+		cout<<"accumulator: " << newMancBaby.accumulator << endl;
+		for (int i = 0; i < 32; i++) {
+			cout << newMancBaby.store.at(i) << endl;
+		}
 		check = newMancBaby.execute();
-		if (check == 1) {
+		if (check == -1) {
 			return 1;
 		}
 		check++;
 			
-		for (int i = 0; i < 32; i++) {
-		cout << newMancBaby.store.at(i) << endl;
-		}
-	sleep_for(seconds(10));
+		
+	//sleep_for(seconds(10));
 	}
 	return 0;
 }
