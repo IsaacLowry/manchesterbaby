@@ -274,8 +274,8 @@ void MancBaby :: displayStatus() {
 			cout << " (Invalid opcode)";
 		}
 	cout << "          Operand from PI: " << this -> operand << endl;
-	
-	cout << "Store:      1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32" << endl;
+	cout << endl;
+	cout << "Store:" << endl;
 	for (int r = 0; r < 10; r++) {
 		cout << "     " << r;
 		for (int c = 0; c < 32; c++) {
@@ -298,15 +298,16 @@ void MancBaby :: displayStatus() {
 		}
 		cout << endl;
 	}
-	cout << "				1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32" << endl;
+	cout << endl;
 	cout << "Accumulator:	";
 	for (int c = 0; c < 32; c++) {
 		if (this -> accumulator[c] == '1') {
-			cout << "\u25AA ";
+			cout << "\u25AA  ";
 		} else {
-			cout << "\u25AB ";
+			cout << "\u25AB  ";
 		}
 	}
+	cout << endl;
 }
 
 
