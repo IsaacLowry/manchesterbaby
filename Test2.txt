@@ -1,0 +1,14 @@
+		VAR 0		;
+START:	JRP NUM01	;
+		LND NUM01	;
+NUM01:	VAR 5		;
+NUM02:	VAR 5		;
+		CMP 		;
+		JMP NUM02	;
+		SUB	NUM03	;
+		STO NUM02	;
+		LDN	NUM02	;
+		STO NUM02 	;
+		JMP NUM01	;
+NUM03:	VAR	8		;
+END:	STP			;
