@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -123,7 +124,7 @@ string getinstruction(string word, string instruset[7][2]) {
 		for (int j = 0; j < 1; j++) {
 			if (instruset[i][j] == word) {
 
-				//cout  << instruset[i][j+1];
+				//gets opcode from instruction set
 				return instruset[i][j + 1];
 			}
 
@@ -358,16 +359,17 @@ int main(int argc, char** argv) {
 	}
 
 	ofstream outfile;
+	outfile.open("binarycode.txt");
 	for (string str : filearr2) {
-		//cout << str << endl;
+		//decalre default buffer
 		out = "00000000000000000000000000000000";
 		istringstream iss(str);
-		//cout << "here we go" << endl;
+
 		while (iss >> word) {
 			if (word != ";") {
-				//cout << word << " no this" << endl;
+
 				out = finalconversion(max_size, symboltable, instructionset, pointer, word, out);
-				//cout << out << endl;
+
 			}
 
 			else {
@@ -377,17 +379,20 @@ int main(int argc, char** argv) {
 		}
 		char comp = str[0];
 		if ((comp != ';') && (str != "")) {
-			cout << out << " this one" << endl;
-			outfile.open("binarycode.txt");
-			outfile << out;
+			//write to file
+			cout << out << endl;
 
-			//outfile.close();
+			outfile << out;
+			outfile << "\n";
+
+
 		}
 
 
 	}
-	//getlinenum("MYSUM");
-
+	//close file and exit
+	cout << "Binary Written to file binarycode.txt." << endl;
+	outfile.close();
 
 	return 0;
 
