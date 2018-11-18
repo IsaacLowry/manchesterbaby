@@ -48,7 +48,7 @@ void getcode(string filename) {
 
 int getstart() {
 	string st = "START:";
-	for (int j = 0; j < filearr.size(); j++) {
+	for (int j = 0; j < static_cast<int>(filearr.size()); j++) {
 		//cout << filearr[j]<< endl;
 		string big = filearr[j];
 		if (big.find(st) != string::npos) {
@@ -64,7 +64,7 @@ int getstart() {
 int getnumcomm() {
 	int count = 0;
 	int k = getstart();
-	for (int t = k; t < filearr.size(); t++) {
+	for (int t = k; t < static_cast<int>(filearr.size()); t++) {
 		string prt = filearr[t];
 		if (prt[0] == ';') {
 			//cout<< count<< endl;
@@ -85,7 +85,7 @@ int getlinenum(string in) {
 	int count = getnumcomm();
 	//cout<<count;
 	in += ':';
-	for (int i = 0; i < filearr.size(); i++) {
+	for (int i = 0; i < static_cast<int>(filearr.size()); i++) {
 		//cout << filearr[i]<< endl;
 		string big = filearr[i];
 		if (big.find(in) != string::npos) {
@@ -130,6 +130,7 @@ string getinstruction(string word, string instruset[7][2]) {
 
 		}
 	}
+	return "";
 }
 
 bool instructionlookup(string word, string instruset[7][2]) {
@@ -150,7 +151,7 @@ bool instructionlookup(string word, string instruset[7][2]) {
 }
 
 
-int firstscanforvariable(int max_size, string symtable[][2], string instructionset[7][2], int pointer, string in) {
+int firstscanforvariable(string symtable[][2], string instructionset[7][2], int pointer, string in) {
 	cout << "Starting first pass.." << endl;
 
 	if (instructionlookup(in, instructionset)) {
@@ -215,7 +216,7 @@ bool lookupsymtable(string in, string symtable[][2], int pointer) {
 
 
 
-string secondscan(string in, string symtable[][2], int pointer) {
+string secondscan(string in) {
 	cout << "Replacing variables" << endl;
 	int rep = getlinenum(in);
 	string rep2 = to_string(rep);
@@ -232,7 +233,7 @@ string secondscan(string in, string symtable[][2], int pointer) {
 
 
 
-string finalconversion(int max_size, string symtable[][2], string instructionset[7][2], int pointer, string in, string out) {
+string finalconversion(string instructionset[7][2], string in, string out) {
 	cout << "starting second pass.." << endl;
 	//check to see if word is in instruction set
 	if (instructionlookup(in, instructionset)) {
@@ -306,13 +307,13 @@ int main(int argc, char** argv) {
 	}
 	//set variables
 	string word = "";
-	int max_size = 101;
+
 	int pointer = 1;
 	string file = argv[1];
 	//obtain code from file
 	getcode(file);
-	string symboltable[max_size][2]; //initialise empty symboltable
-	int count_file = filearr.size();
+	string symboltable[101][2]; //initialise empty symboltable
+
 	for (string str : filearr) {
 		//scan through each line of file
 		istringstream iss(str);
@@ -322,7 +323,7 @@ int main(int argc, char** argv) {
 				break;
 			}
 			//call function to scan and fill symbol table
-			pointer = (firstscanforvariable(max_size, symboltable, instructionset, pointer, word));
+			pointer = (firstscanforvariable(symboltable, instructionset, pointer, word));
 
 		}
 
@@ -340,7 +341,7 @@ int main(int argc, char** argv) {
 			if (lookupsymtable(word, symboltable, pointer)) {
 
 				//if word in symboltable, obtain address and replace
-				string rep = secondscan(word, symboltable, pointer);
+				string rep = secondscan(word);
 
 				if (!(rep == "")) {
 					int front = str.find(word);
@@ -368,7 +369,7 @@ int main(int argc, char** argv) {
 		while (iss >> word) {
 			if (word != ";") {
 
-				out = finalconversion(max_size, symboltable, instructionset, pointer, word, out);
+				out = finalconversion(instructionset, word, out);
 
 			}
 
@@ -398,3 +399,4 @@ int main(int argc, char** argv) {
 
 
 }
+
