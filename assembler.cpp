@@ -1,8 +1,3 @@
-
-
-
-
-
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -38,17 +33,72 @@ void getcode(string filename) {
 		while (getline(file, line))
 		{
 			filearr.push_back(line);
-			cout << line << '\n';
+			//cout << line << '\n';
 		}
 		file.close();
-		cout << "file closed" << endl;
+		//cout<< "file closed" << endl;
 	}
 
-	else cout << "Unable to open file";
+	else cout << "Cannot open file." << endl;
 
 
 }
 
+
+int getstart() {
+	string st = "START:";
+	for (int j = 0; j < filearr.size(); j++) {
+		//cout << filearr[j]<< endl;
+		string big = filearr[j];
+		if (big.find(st) != string::npos) {
+			int k = j;
+			return k;
+		}
+	}
+	return 0;
+
+}
+
+
+int getnumcomm() {
+	int count = 0;
+	int k = getstart();
+	for (int t = k; t < filearr.size(); t++) {
+		string prt = filearr[t];
+		if (prt[0] == ';') {
+			//cout<< count<< endl;
+			count++;
+		}
+
+
+	}
+	return count;
+}
+
+
+
+
+
+int getlinenum(string in) {
+	int k = getstart();
+	int count = getnumcomm();
+	//cout<<count;
+	in += ':';
+	for (int i = 0; i < filearr.size(); i++) {
+		//cout << filearr[i]<< endl;
+		string big = filearr[i];
+		if (big.find(in) != string::npos) {
+			int val = (((i + 1) - k) - count);
+
+			//cout << val << endl;
+
+
+			return val;
+		}
+	}
+
+	return 0;
+}
 
 
 
@@ -100,27 +150,14 @@ bool instructionlookup(string word, string instruset[7][2]) {
 
 
 int firstscanforvariable(int max_size, string symtable[][2], string instructionset[7][2], int pointer, string in) {
+	cout << "Starting first pass.." << endl;
 
-	//string symboltable[pointer][1]; //need to allocate
-	//size_t symtablesize=6;
-	/*string in="";
-	//cout << "enter things"<< endl;
-	string input;
-	cin >> input ; //get input
-	//cout << input.length()<< endl;
-	for(char c : input){
-
-
-			//cout<< c<< endl;
-	in+= c;
-	//cout<< in<<endl;
-	} */
 	if (instructionlookup(in, instructionset)) {
-		//cout << "this is instruction"<< endl;
+		cout << "Instruction found" << endl;
 		string function = getinstruction(in, instructionset);
-		//cout << function;
+
 		out.replace(13, 16, function);
-		//cout << out << endl;
+		cout << out << endl;
 		return pointer;
 	}
 
@@ -136,21 +173,21 @@ int firstscanforvariable(int max_size, string symtable[][2], string instructions
 				return pointer;
 
 			}
+			cout << "Adding to symbol table" << endl;
 			symtable[pointer][1] += in;
 			pointer++;
 			return pointer;
 		}
 	}
 
-	//cout << symtable[pointer][0]<< " ok"<< endl;
+
 	//convert to big-edian binary and output
 	symtable[pointer - 1][2] += in;
 	string operand = bigendbinary(stoi(in));
-
 	out.replace(0, 5, operand);
-	//cout << out<< endl;
-	//string padding= getpadding(function,operand);
-	//cout<<operand<<"00000000"<<function<<"0000000000000000"<< endl;
+	cout << "Adding value to symbol table" << endl;
+
+
 	return pointer;
 
 
@@ -161,7 +198,7 @@ bool lookupsymtable(string in, string symtable[][2], int pointer) {
 	for (int i = 0; i < pointer; i++) {
 		for (int j = 0; j < 2; j++) {
 			if (symtable[i][j] == in) {
-
+				cout << "Found in symbol table" << endl;
 				return true;
 			}
 		}
@@ -178,40 +215,64 @@ bool lookupsymtable(string in, string symtable[][2], int pointer) {
 
 
 string secondscan(string in, string symtable[][2], int pointer) {
-	in += ':';
-	cout << in << " ok scanning " << endl;
-	cout << "pointer is " << endl;
-	for (int i = 0; i < pointer; i++) {
-		for (int j = 0; j < 2; j++) {
-			if (symtable[i][j] == in) {
-				cout << "trying " << symtable[i][j] << endl;
-				string rep = symtable[i][j + 1];
-				return rep;
-			}
-
-		}
-	}
-
-	return "";
-
-
-
-
+	cout << "Replacing variables" << endl;
+	int rep = getlinenum(in);
+	string rep2 = to_string(rep);
+	return rep2;
 }
 
 
 
 
 
+
+
+
+
+
+
+string finalconversion(int max_size, string symtable[][2], string instructionset[7][2], int pointer, string in, string out) {
+	cout << "starting second pass.." << endl;
+	//check to see if word is in instruction set
+	if (instructionlookup(in, instructionset)) {
+		//obtain opcode
+		string function = getinstruction(in, instructionset);
+		cout << "instruction found, opcode obtained" << endl;
+		//update output buffer
+		out.replace(13, 3, function);
+		cout << out << endl;
+		return out;
+	}
+	for (char c : in) {
+		//check for certain flags e.g. comments
+		if (c == ';') {
+			//cout<< out << endl;
+
+			return out;
+
+		}
+		if (!(isdigit(c))) {
+
+			//ignore other terms
+			return out;
+
+		}
+	}
+
+	string operand = bigendbinary(stoi(in));
+
+	out.replace(0, operand.length(), operand);
+
+	return out;
+}
+
+
 void displaysymtable(string symtable[][2], int pointer) {
-	// int rows =  sizeof(symtable) / sizeof(symtable[0][0]);
-	//cout << symtable[0][1];
-	//cout << pointer;
-	//cout << symtable[pointer][1];
+	//not for assembler--> useful function for displaying symbol table
 	for (int i = 1; i < pointer + 1; i++) {
 		for (int j = 1; j < 3; j++) {
 			cout << symtable[i][j] << endl;
-			//cout << "next"<< endl;
+
 		}
 	}
 	cout << "symtable displayed" << endl;
@@ -222,9 +283,8 @@ void displaysymtable(string symtable[][2], int pointer) {
 
 
 
-int main() {
-	//function takes first part of input and seperates word
-	  //enters word into symboltable
+int main(int argc, char** argv) {
+	//define instruction set
 	string instructionset[7][2] = {
 
 	{"JMP","000"},
@@ -238,114 +298,97 @@ int main() {
 
 
 	};
+	//check arguments
+	if (argc != 2) {
+		cout << "Please enter filename only as argument" << endl;
+		return 1;
+	}
+	//set variables
 	string word = "";
 	int max_size = 101;
 	int pointer = 1;
-	getcode("baby.txt");
-	string symboltable[max_size][2]; //need to allocate
+	string file = argv[1];
+	//obtain code from file
+	getcode(file);
+	string symboltable[max_size][2]; //initialise empty symboltable
 	int count_file = filearr.size();
 	for (string str : filearr) {
-		cout << str << endl;
+		//scan through each line of file
 		istringstream iss(str);
-		//cout << "here" << endl;
+		//check each word
 		while (iss >> word) {
 			if (word == ";") {
 				break;
 			}
-			//cout << word << endl;
+			//call function to scan and fill symbol table
 			pointer = (firstscanforvariable(max_size, symboltable, instructionset, pointer, word));
-			//cout << pointer << endl;
+
 		}
-		cout << out << endl;
+
 	}
-	displaysymtable(symboltable, pointer);
+	cout << "Symbol table complete" << endl;
 	for (string str : filearr) {
-		cout << str << endl;
+
 		istringstream iss(str);
-		cout << "here" << endl;
+
 		while (iss >> word) {
 			if (word == ";") {
 				break;
 			}
-			cout << word << " ok" << endl;
-			if (lookupsymtable(word, symboltable, pointer)) {
-				cout << "it is " << endl;
 
+			if (lookupsymtable(word, symboltable, pointer)) {
+
+				//if word in symboltable, obtain address and replace
 				string rep = secondscan(word, symboltable, pointer);
-				cout << "rep is " << rep << endl;
+
 				if (!(rep == "")) {
 					int front = str.find(word);
-					cout << front << endl;
+
 					int back = word.length();
-					cout << back << endl;
-					cout << "replacing in " << str << endl;
-					cout << "here!" << endl;
-					cout << rep << endl;
-					//rep+=" ;";
-					cout << rep << endl;
+
 					str.replace(front, back, rep);
-					cout << "new string " << str << endl;
-					//filearr2.push_back(str);
+
 				}
 			}
 
 		}
+		cout << "Variables replaced" << endl;
 		filearr2.push_back(str);
 
-		//(firstscanforvariable(max_size,symboltable,instructionset,pointer,w));
-	}/*
-	string w="";
-	for (string st: filearr2){
-	istringstream iss(st);
-	//cout << "here" << endl;
-	while (iss >> w){
-	if (w==";"){
-	break;}
+	}
 
+	ofstream outfile;
+	for (string str : filearr2) {
+		//cout << str << endl;
+		out = "00000000000000000000000000000000";
+		istringstream iss(str);
+		//cout << "here we go" << endl;
+		while (iss >> word) {
+			if (word != ";") {
+				//cout << word << " no this" << endl;
+				out = finalconversion(max_size, symboltable, instructionset, pointer, word, out);
+				//cout << out << endl;
+			}
 
-	if (instructionlookup(w, instructionset)){
-	//cout << "this is instruction"<< endl;
-	string function=getinstruction(w, instructionset);
-	//cout << function;
-	out.replace(13,16,function);
+			else {
+				break;
+			}
+
+		}
+		char comp = str[0];
+		if ((comp != ';') && (str != "")) {
+			cout << out << " this one" << endl;
+			outfile.open("binarycode.txt");
+			outfile << out;
+
+			//outfile.close();
+		}
+
 
 	}
-	else{
-	string operand= bigendbinary(stoi(w));
-
-	out.replace(0,5,operand);
-
-	//cout << word << endl;
-
-	//cout << pointer << endl;
-	}}
-	//cout << out<< endl;
+	//getlinenum("MYSUM");
 
 
-	}
-	*/
-	//pointer=(firstscanforvariable(max_size,symboltable,instructionset,pointer,word));
-	//cout << pointer << endl;
-
-	cout << out << endl;
-
-
-
-
-
-
-
-
-	//cout<< out << endl;
-	//scanforvariable(max_size,symboltable,instructionset,pointer);
-	//displaysymtable(symboltable,pointer);
-	cout << "y" << endl;
-	cout << filearr2.size();
-
-	for (int i = 0; i < filearr2.size(); i++) {
-
-		cout << filearr2[i] << endl;
-	}
 	return 0;
 
 
