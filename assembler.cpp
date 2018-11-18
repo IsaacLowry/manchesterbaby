@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -67,7 +66,7 @@ int getnumcomm() {
 	for (int t = k; t < static_cast<int>(filearr.size()); t++) {
 		string prt = filearr[t];
 		if (prt[0] == ';') {
-			//cout<< count<< endl;
+
 			count++;
 		}
 
@@ -125,6 +124,7 @@ string getinstruction(string word, string instruset[7][2]) {
 			if (instruset[i][j] == word) {
 
 				//gets opcode from instruction set
+
 				return instruset[i][j + 1];
 			}
 
@@ -138,7 +138,7 @@ bool instructionlookup(string word, string instruset[7][2]) {
 		for (int j = 0; j < 1; j++) {
 			if (instruset[i][j] == word) {
 
-				//cout  << instruset[i][j+1] << endl;
+
 				return true;
 			}
 
@@ -158,7 +158,7 @@ int firstscanforvariable(string symtable[][2], string instructionset[7][2], int 
 		cout << "Instruction found" << endl;
 		string function = getinstruction(in, instructionset);
 
-		out.replace(13, 16, function);
+		out.replace(13, 3, function);
 		cout << out << endl;
 		return pointer;
 	}
@@ -324,7 +324,7 @@ int main(int argc, char** argv) {
 			}
 			//call function to scan and fill symbol table
 			pointer = (firstscanforvariable(symboltable, instructionset, pointer, word));
-
+			displaysymtable(symboltable, pointer);
 		}
 
 	}
@@ -399,4 +399,5 @@ int main(int argc, char** argv) {
 
 
 }
+
 
