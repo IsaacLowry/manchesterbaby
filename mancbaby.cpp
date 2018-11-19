@@ -93,8 +93,10 @@ int MancBaby :: loadFromFile() {
 // Method for fetching the next instruction from the store
 void MancBaby :: fetch() {
 	try {
+		// cout << "CI before increment: " << this->controlInstruct << endl;
 		this -> controlInstruct = (this -> controlInstruct) + 1;
 		presentInstruct = store.at(controlInstruct);
+		// cout << "CI after increment: " << this->controlInstruct << endl;
 	} catch (...) {
 		cout << "Problem with fetch() method." << endl;
 	}
@@ -127,25 +129,25 @@ int MancBaby :: execute() {
 		if (this -> opcode == "000") {
 			JMP();
 		} else if (this -> opcode == "100") {
-			cout << opcode << " - JRP" << endl;
+			// cout << opcode << " - JRP" << endl;
 			JRP();
 		} else if (this -> opcode == "010") {
-			cout << opcode << " - LDN" << endl;
+			// cout << opcode << " - LDN" << endl;
 			LDN();
 		} else if (this -> opcode == "110") {
-			cout << opcode << " - STO" << endl;
+			// cout << opcode << " - STO" << endl;
 			STO();
 		} else if (this -> opcode == "001") {
-			cout << opcode << " - SUB" << endl;
+			// cout << opcode << " - SUB" << endl;
 			SUB();
 		} else if (this -> opcode == "101") {
-			cout << opcode << " - SUB" << endl;
+			// cout << opcode << " - SUB" << endl;
 			SUB();
 		} else if (this -> opcode == "011") {
-			cout << opcode << " - CMP" << endl;
+			// cout << opcode << " - CMP" << endl;
 			CMP();
 		} else if (this -> opcode == "111") {
-			cout << opcode << " - STP" << endl;
+			// cout << opcode << " - STP" << endl;
 			return -1;
 		} else {
 			cout << "Error: Invalid opcode" << endl;
@@ -167,7 +169,7 @@ void MancBaby :: JMP() {
 
 // Method for carrying out a JRP instruction (add operand to present instruction counter)
 void MancBaby :: JRP() {	
-	this -> controlInstruct = (this -> controlInstruct + this -> operand);
+	this -> controlInstruct = (this -> controlInstruct + binToDec(this -> store.at(this -> operand)));
 }
 
 
@@ -180,7 +182,6 @@ void MancBaby :: LDN() {
 		temp.at(31) = '0';
 	}
 	this -> accumulator = temp;
-	cout<<"accumulator: " << this->accumulator<<endl;
 }
 
 
@@ -255,7 +256,7 @@ void MancBaby :: displayStatus() {
 	cout << "Present instruction: " << this -> presentInstruct << endl;
 	cout << "Opcode from PI: " << this -> opcode;
 	if (this -> opcode == "000") {
-			cout << " (JRP)";
+			cout << " (JMP)";
 		} else if (this -> opcode == "100") {
 			cout << " (JRP)";
 		} else if (this -> opcode == "010") {
@@ -317,33 +318,14 @@ int main() {
 	if (newMancBaby.loadFromFile() == 1) {
 		return 1;
 	}
-	// cout<<"Store:" << endl;
-	// for (int i = 0; i < 32; i++) {
-	// 	cout << newMancBaby.store.at(i) << endl;
-	// }
-	// cout<< "instruct addr: " << newMancBaby.controlInstruct << endl;
-	// cout<< "instruction: " << newMancBaby.presentInstruct << endl;
-	// cout<< "opcode: " << newMancBaby.opcode << endl;
-	// cout<< "operand: " << newMancBaby.operand << endl;
-
-
-	//sleep_for(seconds(2));
 
 	int check = 0;
 	while (check != -1){ // Until stop light is lit	
-		// cout<<"---------------------------------------------" << endl;	
-		// cout<< "instruct addr: " << newMancBaby.controlInstruct << endl;
-		newMancBaby.fetch();
-		// cout<< "instruction: " << newMancBaby.presentInstruct << endl;
-		newMancBaby.decode();
-		// cout<<"operand: " << newMancBaby.operand << endl;
-		// cout << "opcode: " << newMancBaby.opcode << endl;
-		// cout<<"accumulator: " << newMancBaby.accumulator << endl;
-		// for (int i = 0; i < 32; i++) {
-		// 	cout << newMancBaby.store.at(i) << endl;
-		// }
-		check = newMancBaby.execute();
 		newMancBaby.displayStatus();
+		newMancBaby.fetch();
+		newMancBaby.decode();
+		check = newMancBaby.execute();
+		sleep_for(seconds(2));
 	}
 
 	cout << "Stop light lit (STP). Exiting simulator..." << endl;
