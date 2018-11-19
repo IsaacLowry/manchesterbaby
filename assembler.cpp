@@ -24,6 +24,27 @@ string bigendbinary(int i) {
 }
 
 
+
+
+bool isnumber(string str) {
+	for (char c : str) {
+
+		if (!(isdigit(c))) {
+
+			return false;
+
+		}
+	}
+	return true;
+}
+
+
+
+
+
+
+
+
 void getcode(string filename) {
 
 	string line;
@@ -324,7 +345,7 @@ int main(int argc, char** argv) {
 			}
 			//call function to scan and fill symbol table
 			pointer = (firstscanforvariable(symboltable, instructionset, pointer, word));
-			displaysymtable(symboltable, pointer);
+			//displaysymtable(symboltable,pointer);
 		}
 
 	}
@@ -337,6 +358,8 @@ int main(int argc, char** argv) {
 			if (word == ";") {
 				break;
 			}
+
+
 
 			if (lookupsymtable(word, symboltable, pointer)) {
 
@@ -352,7 +375,15 @@ int main(int argc, char** argv) {
 
 				}
 			}
-
+			else if ((!(word.find(":") != string::npos))) {
+				//&&(!(instructionlookup(word,instructionset)))&&(!(lookupsymtable(word,symboltable,pointer)))){
+				string wo = word;
+				wo += ":";
+				if ((!(instructionlookup(word, instructionset))) && (!(lookupsymtable(wo, symboltable, pointer))) && (word != "VAR") && (!(isnumber(word)))) {
+					cout << "Syntax Error-" << word << " Variable not Declared" << endl;
+					return 2;
+				}
+			}
 		}
 		cout << "Variables replaced" << endl;
 		filearr2.push_back(str);
@@ -399,5 +430,3 @@ int main(int argc, char** argv) {
 
 
 }
-
-
