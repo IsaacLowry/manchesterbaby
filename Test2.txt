@@ -1,6 +1,6 @@
 		VAR 0		;
 START:	LDN NUM01	;
-		JRP NUM01	;
+		JRP NUM04	;
 NUM01:	VAR 5		;
 NUM02:	VAR 5		;
 		CMP 		;
@@ -10,5 +10,6 @@ NUM02:	VAR 5		;
 		LDN	NUM02	;
 		STO NUM02 	;
 		JMP NUM01	;
-NUM03:	VAR	8		;
 END:	STP			;
+NUM03:	VAR	6		;
+NUM04:	VAR 2		;

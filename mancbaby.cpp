@@ -1,7 +1,7 @@
 /**
   * Project: AC21009 (Computer Systems 2A) Assignment 3 - Small Scale Experimental Machine (SSEM)/'Manchester Baby'
   * Subtitle: Manchester Baby Simulator
-  * Name: Paul Ritch, Patrick Turton-Smith (170012743) & Isaac Lowry for Team 16
+  * Name: Paul Ritch (170011444), Patrick Turton-Smith (170012743) & Isaac Lowry (170025555) for Team 16
   * Date: 17/11/2018
   * Program to simulate the working of the SSEM (the Manchester Baby). Loads the program to be run on the simulator from a pre-compiled file and executes it.
 **/
@@ -72,10 +72,13 @@ int MancBaby :: loadFromFile() {
 		readFile.open(filePath, ios::in);
 		string currLine;
 		if (readFile.is_open()) {
-			int i = 0;
-			while (getline(readFile, currLine) && i < 32) {
+			unsigned int i = 0;
+			while (getline(readFile, currLine) && i < this->store.size()) {
 				this -> store.at(i) = currLine;
 				i++;
+			}
+			if (i == this->store.size() && getline(readFile, currLine)) {
+				cout << "The Machine has run out of memory space and cannot load the entire program specified." << endl;
 			}
 			readFile.close();
 			return 0;
@@ -249,9 +252,9 @@ string MancBaby :: decToBin(int origDecimal) {
 }
 
 
-// Method for displaying the status of all aspects of the machine
+//Method for displaying the status of all aspects of the machine
 void MancBaby :: displayStatus() {
-	cout << "__________________________________________________________________________________________________________________________________" << endl << endl;
+	cout << "_______________________________________________________________________________________________________________________________" << endl << endl;
 	cout << "Control Instruction: " << this -> controlInstruct << endl;
 	cout << "Present instruction: " << this -> presentInstruct << endl;
 	cout << "Opcode from PI: " << this -> opcode;
@@ -272,13 +275,13 @@ void MancBaby :: displayStatus() {
 		} else if (this -> opcode == "111") {
 			cout << " (STP)";
 		} else {
-			cout << " (Invalid opcode)";
+			cout << " (Opcode not present)";
 		}
 	cout << "          Operand from PI: " << this -> operand << endl;
 	cout << endl;
 	cout << "Store:" << endl;
 	for (int r = 0; r < 10; r++) {
-		cout << "     " << r;
+		cout << "             " << r;
 		for (int c = 0; c < 32; c++) {
 			if (this -> store.at(r)[c] == '1') {
 				cout << "  \u25AA";
@@ -288,8 +291,8 @@ void MancBaby :: displayStatus() {
 		}
 		cout << endl;
 	}
-	for (int r = 10; r < 32; r++) {
-		cout << "    " << r;
+	for (unsigned int r = 10; r < this -> store.size(); r++) {
+		cout << "            " << r;
 		for (int c = 0; c < 32; c++) {
 			if (this -> store.at(r)[c] == '1') {
 				cout << "  \u25AA";
@@ -311,21 +314,32 @@ void MancBaby :: displayStatus() {
 	cout << endl;
 }
 
-
 // Main method for the simulator, creates the variables necessary and calls the other methods to properly simulate the Baby.
 int main() {
 	MancBaby newMancBaby;
+	string extendInput;
+	cout << "Do you wish to extend the Machine's memory space to 64 locations? (y/n)";
+	cin >> extendInput;
+	if (extendInput == "y" || extendInput == "Y") {
+		newMancBaby.store.resize(64);
+		cout << "Continuing with extended 64 memory locations..." << endl;
+	} else if (extendInput == "n" || extendInput == "N") {
+		cout << "Continuing with standard 32 memory locations..." << endl;
+	} else {
+		cout << "Invalid input. Continuing with default 32 memory locations..." << endl;
+	}
 	if (newMancBaby.loadFromFile() == 1) {
 		return 1;
 	}
 
+	newMancBaby.displayStatus();
 	int check = 0;
 	while (check != -1){ // Until stop light is lit	
-		newMancBaby.displayStatus();
 		newMancBaby.fetch();
 		newMancBaby.decode();
 		check = newMancBaby.execute();
-		sleep_for(seconds(2));
+		newMancBaby.displayStatus();
+		sleep_for(seconds(1));
 	}
 
 	cout << "Stop light lit (STP). Exiting simulator..." << endl;

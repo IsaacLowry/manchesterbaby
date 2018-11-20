@@ -1,3 +1,10 @@
+/**
+  * Project: AC21009 (Computer Systems 2A) Assignment 3 - Small Scale Experimental Machine (SSEM)/'Manchester Baby'
+  * Subtitle: Manchester Baby Simulator
+  * Name: Jason Khan 180024391 for Team 16
+  * Date: 17/11/2018
+  * Assembler for Manchester Baby.
+**/
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -173,7 +180,6 @@ bool instructionlookup(string word, string instruset[7][2]) {
 
 
 int firstscanforvariable(string symtable[][2], string instructionset[7][2], int pointer, string in) {
-	cout << "Starting first pass.." << endl;
 
 	if (instructionlookup(in, instructionset)) {
 		cout << "Instruction found" << endl;
@@ -255,7 +261,6 @@ string secondscan(string in) {
 
 
 string finalconversion(string instructionset[7][2], string in, string out) {
-	cout << "starting second pass.." << endl;
 	//check to see if word is in instruction set
 	if (instructionlookup(in, instructionset)) {
 		//obtain opcode
@@ -335,6 +340,9 @@ int main(int argc, char** argv) {
 	getcode(file);
 	string symboltable[101][2]; //initialise empty symboltable
 
+
+	cout << "Starting first pass.." << endl;
+
 	for (string str : filearr) {
 		//scan through each line of file
 		istringstream iss(str);
@@ -392,6 +400,8 @@ int main(int argc, char** argv) {
 
 	ofstream outfile;
 	outfile.open("binarycode.txt");
+
+	cout << "starting second pass.." << endl;
 	for (string str : filearr2) {
 		//decalre default buffer
 		out = "00000000000000000000000000000000";
